@@ -7,3 +7,5 @@ services:
     ports:
       - "8100:8080"
     tty: true
+    volumes:
+        - "./:/app"
