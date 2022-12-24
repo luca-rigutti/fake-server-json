@@ -1,0 +1,9 @@
+version: "3.3"
+services:
+  fake-server-json:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    ports:
+      - "8100:8080"
+    tty: true
