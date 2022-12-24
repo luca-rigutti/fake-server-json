@@ -12,13 +12,19 @@ import (
 	"encoding/json"
 )
 
+type M map[string]interface{}
+
 func main() {
-	readJsonFolder()
+	jsons := readJsonFolder()
 
-
-	http.HandleFunc("/", getRoot)
-	http.HandleFunc("/hello", getHello)
-
+	for _, j := range jsons {
+		jsonBytes, err := json.MarshalIndent(j["response"],"","   ")
+		    if err != nil {
+        log.Fatal(err)
+    }
+		http.HandleFunc(j["url"].(string), testHandler(string(jsonBytes)))//(fmt.Sprintf("%v",j["response"])))
+	}
+	
 	err := http.ListenAndServe(":8080", nil)
 	if errors.Is(err, http.ErrServerClosed) {
 		  fmt.Printf("server closed\n")
@@ -28,17 +34,15 @@ func main() {
 	  }
 }
 
-
-func getRoot(w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("got / request\n")
-	io.WriteString(w, "This is my website!\n")
-}
-func getHello(w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("got /hello request\n")
-	io.WriteString(w, "Hello, HTTP!\n")
+func testHandler(name string) http.HandlerFunc {
+    return func(w http.ResponseWriter, r *http.Request) {
+        fmt.Printf("got / request\n")
+		io.WriteString(w, name)
+    }
 }
 
-func readJsonFolder() {
+
+func readJsonFolder() []M {
 	filesJson := []string {};
 	files, err := ioutil.ReadDir("RouteJson")
     if err != nil {
@@ -52,17 +56,18 @@ func readJsonFolder() {
 		}
     }
 
+	var responses []M
+
 	for _,nameFileJson := range filesJson {
 		fmt.Println(nameFileJson)
-		readJsonFile(nameFileJson)
+		responses = append(responses, readJsonFile(nameFileJson))
 	}
 
-
-
+	return responses
 
 }
 
-func readJsonFile(filename string){
+func readJsonFile(filename string) map[string]interface{} {
 	    // Open our jsonFile
 		jsonFile, err := os.Open("RouteJson/"+filename)
 		// if we os.Open returns an error then handle it
@@ -80,5 +85,7 @@ func readJsonFile(filename string){
 	
 		fmt.Println(result["url"])
 		fmt.Println(result["response"])
+
+		return result
 		
 }
