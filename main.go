@@ -37,6 +37,10 @@ func main() {
 func testHandler(name string) http.HandlerFunc {
     return func(w http.ResponseWriter, r *http.Request) {
         fmt.Printf("got / request\n")
+
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Content-Type", "application/json")
+		
 		io.WriteString(w, name)
     }
 }
