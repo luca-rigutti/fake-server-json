@@ -1,0 +1,11 @@
+version: "3.3"
+services:
+  fake-server-json-python:
+    build:
+      dockerfile: dockerfile
+      context: .
+    ports:
+      - "8100:8080"
+    tty: true
+    volumes:
+        - "./:/app"
