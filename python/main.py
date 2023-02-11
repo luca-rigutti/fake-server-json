@@ -6,21 +6,24 @@ import json
 urlAndResponse = []
 
 path = r'/app/json/*.json'
-files = glob.glob(path)
-for i in files:
-    f = open(i)
-  
-    # returns JSON object as 
-    # a dictionary
-    data = json.load(f)
-    request = {}
-    print(data)
-    request["url"] = data["url"]
-    request["response"] = data["response"]
-    
-    urlAndResponse.append(request)
 
-print(urlAndResponse)
+
+def getUrlAndResponseList(path):
+    print("getUrlAndResponseList start")
+    files = glob.glob(path)
+    for i in files:
+        f = open(i)
+
+        data = json.load(f)
+        request = {}
+        request["url"] = data["url"]
+        request["response"] = data["response"]
+        
+        urlAndResponse.append(request)
+
+    return urlAndResponse
+
+urlAndResponse = getUrlAndResponseList(path)
 
 PORT = 8080
 hostName = "0.0.0.0"
@@ -35,8 +38,8 @@ class MyServer(BaseHTTPRequestHandler):
         self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header("Content-type", "application/json")
         self.end_headers()
-        
-        ss = filter(lambda person: person['url'] == self.path, urlAndResponse)
+        urlAndResponse1 = getUrlAndResponseList(path)
+        ss = filter(lambda person: person['url'] == self.path, urlAndResponse1)
         ss2 = list(ss)
         if len(ss2) > 0:
             self.wfile.write(bytes(json.dumps(ss2[0].get('response')), "utf-8"))
